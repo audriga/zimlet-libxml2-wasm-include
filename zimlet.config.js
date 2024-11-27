@@ -10,4 +10,13 @@ export default function configure(config, env) {
 
 	// Create an alias FOO to be replaced by webpack at build time from the environment variable BAR
 	// config.resolve.alias.FOO = process.env.BAR;
+
+	// Disable node polyfills, not really required by libxml2-wasm
+	config.resolve.fallback = {
+		fs: false,
+		path: false,
+		stream: false,
+		crypto: false,
+		vm: false
+	};
 }
