@@ -22,12 +22,8 @@ export default function Zimlet(context) {
 		const { slugs } = useClientConfig({ slugs: 'routes.slugs' });
 		return (
 			// List of components can be found in zm-x-web, zimlet-manager/shims.js, and more can be added if needed
-			<MenuItem
-				responsive
-				icon='question-circle'
-				href={`/${slugs.email}/${SLUG}`}
-			>
-				<Text id='zimlet-libxml2-wasm-include.menuItem' />
+			<MenuItem responsive icon="question-circle" href={`/${slugs.email}/${SLUG}`}>
+				<Text id="zimlet-libxml2-wasm-include.menuItem" />
 			</MenuItem>
 		);
 	};
@@ -42,7 +38,6 @@ export default function Zimlet(context) {
 		// Only needed if you need to create a new url route, like for a menu tab, or print, etc
 		plugins.register('slot::routes', Router);
 	};
-
 
 	return exports;
 }
