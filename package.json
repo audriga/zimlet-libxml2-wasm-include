@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.21.0",
-    "@zimbra/zimlet-cli": "^14.0.0",
+    "@zimbra/zimlet-cli": "^17.2.0",
     "audit-ci": "^6.2.0",
     "eslint": "^5.0.0",
     "eslint-config-prettier": "^6.10.0",
