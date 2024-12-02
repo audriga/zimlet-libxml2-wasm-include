@@ -62,3 +62,66 @@ See [README of libxml2 React Test Repository](https://github.com/jaudriga/-libxm
 4. Observe the runtime error when sideloading the zimlet in zimbra
 
 We are seeking feedback and assistance from the Zimlet maintainers to resolve this issue.
+
+## New Findings
+
+I was able to reproduce the issue with `pdfjs-dist` as well:
+
+Apply the following patch:
+
+```patch
+diff --git a/package.json b/package.json
+index 6b803cf..1b07989 100644
+--- a/package.json
++++ b/package.json
+@@ -38,6 +38,7 @@
+     "prettier-eslint": "^9.0.1"
+   },
+   "dependencies": {
+-    "libxml2-wasm": "^0.4.1"
++    "libxml2-wasm": "^0.4.1",
++    "pdfjs-dist": "^4.9.124"
+   }
+ }
+diff --git a/src/components/app/index.js b/src/components/app/index.js
+index 134b10e..b7ee3be 100644
+--- a/src/components/app/index.js
++++ b/src/components/app/index.js
+@@ -1,7 +1,8 @@
+ import { createElement, Component } from 'preact';
+ import { withIntl } from '../../enhancers';
+ import style from './style';
+-import { XmlDocument } from 'libxml2-wasm';
++//import { XmlDocument } from 'libxml2-wasm';
++await import('pdfjs-dist/build/pdf.worker.min.mjs');
+ 
+ // Can also use shimmed decorators like graphql or withText.
+ // Or, utils, like callWtih. Refer to zm-x-web, zimbraManager/shims.js
+@@ -13,8 +14,8 @@ export default class App extends Component {
+                const testLibxml2 = async () => {
+                        try {
+                                // Example: Parse a simple XML string
+-                               const xmlDoc = XmlDocument.fromString(`<root><child>Test</child></root>`);
+-                               const rootNode = xmlDoc.root;
++                               //const xmlDoc = XmlDocument.fromString(`<root><child>Test</child></root>`);
++                               //const rootNode = xmlDoc.root;
+                                setResult(rootNode ? rootNode.name : "No root node found");
+                        } catch (e) {
+                                console.error("Error using libxml2-wasm:", e);
+```
+
+1. Run `npm run watch`.
+2. See it throw the same error message in Zimbra: `Error: TypeError: f()(...)[t] is not a function`.
+
+Side-note: I verified that the error message is no longer being thrown when commenting out `await import('pdfjs-dist/build/pdf.worker.min.mjs');`.
+
+So in the end, as the two following lines are causing an issue:
+
+```javascript
+await import('pdfjs-dist/build/pdf.worker.min.mjs'); // when using pdfjs-dist in index.js
+const libxml2 = await moduleLoader(); // inside libxml2-wasm
+```
+
+I am quite certain that the issue is that top-level await is not properly supported by Zimlet.
+
+(In addition to that, we had a similar issue in another project that is based on Vite.)
